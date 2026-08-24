@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K8sRef — Kubernetes Command Reference</title>
+<meta name="description" content="A searchable, level-filtered reference for kubectl commands and Kubernetes objects — from day-one basics to production-grade advanced usage.">
+<meta name="theme-color" content="#0c0d10">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c0d10'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='26' font-weight='700' fill='%23326ce5' text-anchor='middle'%3EK8%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0c0d10;
+    --panel: #16181d;
+    --panel-2: #1c1f26;
+    --border: #2a2e38;
+    --text: #e4e6ec;
+    --text-dim: #8b8fa3;
+    --accent: #326ce5;
+    --basic: #a3e635;
+    --intermediate: #fb923c;
+    --advanced: #f472b6;
+    --shadow: 0 8px 28px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{ scroll-behavior: smooth; }
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(50,108,229,0.10), transparent 40%),
+      radial-gradient(circle at 85% 10%, rgba(163,230,53,0.05), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+  }
+  ::selection{ background: var(--accent); color:#fff; }
+  a{ color: var(--accent); }
+
+  .topbar{
+    border-bottom:1px solid var(--border);
+    background: rgba(17,22,29,0.75);
+    backdrop-filter: blur(10px);
+    position: sticky; top:0; z-index:50;
+  }
+  .topbar-inner{
+    max-width:1000px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .brand-mark{
+    width:28px; height:28px; border-radius:7px;
+    background: linear-gradient(135deg, var(--accent), var(--basic));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-weight:700; font-size:12px; color:#050709;
+  }
+  .brand-name{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:15px; color:var(--text); }
+  .brand-name span{ color:var(--text-dim); font-weight:500; }
+  .nav-links{ display:flex; align-items:center; gap:20px; }
+  .nav-links a{ font-family:'JetBrains Mono', monospace; font-size:12.5px; color:var(--text-dim); text-decoration:none; }
+  .nav-links a:hover{ color:var(--text); }
+  .status-pill{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--basic);
+    border:1px solid rgba(163,230,53,0.3); background:rgba(163,230,53,0.08);
+    border-radius:20px; padding:4px 10px; display:inline-flex; align-items:center; gap:6px;
+  }
+  .dotpulse{ width:6px; height:6px; border-radius:50%; background:var(--basic); box-shadow:0 0 0 3px rgba(163,230,53,0.18); }
+
+  /* Hero */
+  .hero{ max-width:1000px; margin: 48px auto 8px; padding: 0 24px; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--text-dim); border:1px solid var(--border); border-radius:20px; padding:6px 12px 6px 10px; margin-bottom:20px;
+  }
+  .eyebrow .pulse{ width:6px; height:6px; border-radius:50%; background:var(--basic); box-shadow:0 0 0 3px rgba(163,230,53,0.15); }
+  .hero h1{
+    font-family:'Space Grotesk', sans-serif; font-size: clamp(30px, 4.5vw, 46px);
+    line-height:1.08; margin:0 0 16px; font-weight:700; letter-spacing:-0.02em;
+  }
+  .hero h1 span{ color: var(--accent); }
+  .hero p{ color:var(--text-dim); font-size:16px; line-height:1.65; max-width:64ch; margin:0 0 24px; }
+  .hero-stats{ display:flex; gap:0; border-top:1px solid var(--border); padding-top:18px; flex-wrap:wrap; }
+  .stat{ padding-right:24px; margin-right:24px; border-right:1px solid var(--border); margin-bottom:10px; }
+  .stat:last-child{ border-right:none; margin-right:0; padding-right:0; }
+  .stat-num{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:var(--text); display:block; line-height:1.2; }
+  .stat-label{ font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em; }
+
+  /* Why K8s section */
+  .why-section{ max-width:1000px; margin: 40px auto; padding: 0 24px; }
+  .why-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:20px; }
+  .why-card{
+    background: var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px;
+  }
+  .why-card h3{
+    font-family:'Space Grotesk', sans-serif; font-size:15px; margin:0 0 8px; color: var(--accent);
+    display:flex; align-items:center; gap:8px;
+  }
+  .why-card p{ font-size:13.5px; color:var(--text-dim); line-height:1.55; margin:0; }
+  .section-title{
+    font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; margin:0;
+  }
+  .section-sub{ color:var(--text-dim); font-size:14px; margin:6px 0 0; }
+
+  /* Controls */
+  .controls{ max-width:1000px; margin: 40px auto 8px; padding: 0 24px; }
+  .search-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+  .search-box{
+    flex:1; min-width:240px; display:flex; align-items:center; gap:10px;
+    background: var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 14px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .search-box .prompt{ color:var(--basic); }
+  .search-box input{
+    flex:1; background:transparent; border:none; outline:none; color:var(--text);
+    font-family:'JetBrains Mono', monospace; font-size:14px;
+  }
+  .search-box input::placeholder{ color:var(--text-dim); }
+  .count-pill{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-dim);
+    border:1px solid var(--border); border-radius:20px; padding:8px 14px; white-space:nowrap;
+  }
+  .level-filter{ display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+  .level-btn{
+    font-family:'JetBrains Mono', monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.04em;
+    background: var(--panel); border:1px solid var(--border); color:var(--text-dim);
+    border-radius:20px; padding:6px 14px; cursor:pointer; transition: all .15s ease;
+  }
+  .level-btn:hover{ color:var(--text); }
+  .level-btn.active{ color:var(--bg); background:var(--text); border-color:var(--text); }
+  .level-btn.active[data-level="basic"]{ background:var(--basic); border-color:var(--basic); }
+  .level-btn.active[data-level="intermediate"]{ background:var(--intermediate); border-color:var(--intermediate); }
+  .level-btn.active[data-level="advanced"]{ background:var(--advanced); border-color:var(--advanced); }
+
+  .cat-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+  .cat-chip{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--text-dim); text-decoration:none;
+    border:1px solid var(--border); background: var(--panel); border-radius:20px; padding:6px 12px;
+    display:inline-flex; align-items:center; gap:6px; transition: color .15s ease, border-color .15s ease;
+  }
+  .cat-chip:hover{ color:var(--text); border-color:var(--text-dim); }
+  .cat-chip span{ color:var(--text-dim); font-size:10px; background: rgba(255,255,255,0.06); border-radius:10px; padding:1px 6px; }
+  .cat-chip.active-chip{ color: var(--bg); background: var(--text); border-color: var(--text); }
+  .cat-chip.active-chip span{ background: rgba(0,0,0,0.15); color: var(--bg); }
+
+  .wrap{ max-width:1000px; margin:0 auto; padding: 0 24px 60px; }
+  .section-heading{
+    font-family:'Space Grotesk', sans-serif; font-size:13px; text-transform:uppercase; letter-spacing:0.12em;
+    color:var(--text-dim); margin: 28px 0 14px; padding-top:10px; border-top:1px dashed var(--border);
+    display:flex; align-items:center; gap:8px; scroll-margin-top: 100px;
+  }
+  .section-heading:first-child{ border-top:none; padding-top:0; margin-top:0; }
+  .section-count{
+    font-family:'JetBrains Mono', monospace; text-transform:none; letter-spacing:0; font-size:11px; color:var(--text-dim);
+    background: var(--panel); border:1px solid var(--border); border-radius:20px; padding:2px 8px;
+  }
+  .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px; }
+  .card{
+    background: var(--panel); border:1px solid var(--border); border-left:2px solid var(--border);
+    border-radius:8px; padding:14px 16px; transition: border-left-color .15s ease, background .15s ease, transform .15s ease;
+    animation: cardIn .35s ease backwards;
+  }
+  @keyframes cardIn{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform: translateY(0); } }
+  .card:hover{ transform: translateY(-2px); background: var(--panel-2); border-left-color: var(--accent); }
+  .card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+  .card-cmd{ font-family:'JetBrains Mono', monospace; font-weight:600; font-size:13.5px; color: var(--accent); }
+  .copy-btn{
+    font-family:'JetBrains Mono', monospace; font-size:11px; background: var(--panel-2); border:1px solid var(--border);
+    color:var(--text-dim); border-radius:5px; padding:4px 8px; cursor:pointer; flex-shrink:0;
+  }
+  .copy-btn:hover{ color:var(--text); border-color:var(--text-dim); }
+  .copy-btn.copied{ color:var(--basic); border-color:var(--basic); }
+  .card-desc{ font-size:13px; color:var(--text); line-height:1.5; margin:0 0 10px; }
+  .card-example{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-dim);
+    background: rgba(0,0,0,0.25); border-radius:6px; padding:8px 10px;
+  }
+  .card-example span{ white-space:pre-wrap; word-break:break-word; line-height:1.5; }
+  .level-badge{
+    font-family:'JetBrains Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em;
+    padding:3px 8px; border-radius:20px; flex-shrink:0; border:1px solid transparent;
+  }
+  .level-badge.lvl-basic{ color:var(--basic); background:rgba(163,230,53,0.1); border-color:rgba(163,230,53,0.25); }
+  .level-badge.lvl-intermediate{ color:var(--intermediate); background:rgba(251,146,60,0.1); border-color:rgba(251,146,60,0.25); }
+  .level-badge.lvl-advanced{ color:var(--advanced); background:rgba(244,114,182,0.1); border-color:rgba(244,114,182,0.25); }
+
+  .empty-state{ text-align:center; color:var(--text-dim); font-family:'JetBrains Mono', monospace; padding:60px 20px; display:none; }
+  .empty-state.show{ display:block; }
+
+  .to-top{
+    position:fixed; bottom:24px; right:24px; width:42px; height:42px; border-radius:50%;
+    background: var(--panel); border:1px solid var(--border); color:var(--text-dim); font-size:18px; cursor:pointer;
+    box-shadow: var(--shadow); opacity:0; pointer-events:none; transform: translateY(8px);
+    transition: opacity .2s ease, transform .2s ease, color .15s ease, border-color .15s ease; z-index:60;
+  }
+  .to-top.show{ opacity:1; pointer-events:auto; transform: translateY(0); }
+  .to-top:hover{ color:var(--accent); border-color:var(--accent); }
+
+  footer{
+    border-top:1px solid var(--border); text-align:center; padding:26px 20px 40px;
+    color:var(--text-dim); font-family:'JetBrains Mono', monospace; font-size:12px;
+  }
+  .footer-inner{ display:inline-flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .footer-sep{ opacity:0.4; }
+  .author-card{
+    max-width:400px; margin:24px auto 0; padding:16px 18px; background: var(--panel); border:1px solid var(--border);
+    border-radius:12px; display:flex; align-items:center; gap:14px; text-align:left;
+  }
+  .author-avatar{
+    width:40px; height:40px; border-radius:50%; flex-shrink:0;
+    background: linear-gradient(135deg, var(--accent), var(--basic));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:15px; color:#050709;
+  }
+  .author-name{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:14px; color:var(--text); margin:0 0 2px; }
+  .author-role{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--basic); margin:0; }
+
+  @media (max-width: 640px){ .topbar-inner{ flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a href="#top" class="brand">
+        <span class="brand-mark">K8</span>
+        <span class="brand-name">K8sRef <span>/ kubectl reference</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="#why">Why Kubernetes</a>
+        <a href="#objects">Objects</a>
+        <a href="#commands">Commands</a>
+      </div>
+      <span class="status-pill"><span class="dotpulse"></span><span id="totalStat">110</span> total entries</span>
+    </div>
+  </div>
+
+  <div class="hero" id="top">
+    <div class="eyebrow"><span class="pulse"></span>Basic → Advanced</div>
+    <h1>Master <span>Kubernetes</span> and kubectl.</h1>
+    <p>A precise, searchable reference for running containers at scale — every core kubectl command, every essential object type, and a plain-language explanation of why Kubernetes exists in the first place. Filter by level or search by command.</p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">95</span><span class="stat-label">kubectl commands</span></div>
+      <div class="stat"><span class="stat-num">15</span><span class="stat-label">K8s objects</span></div>
+      <div class="stat"><span class="stat-num">17</span><span class="stat-label">Categories</span></div>
+      <div class="stat"><span class="stat-num">3</span><span class="stat-label">Skill levels</span></div>
+    </div>
+  </div>
+
+  <div class="why-section" id="why">
+    <h2 class="section-title">Why Kubernetes?</h2>
+    <p class="section-sub">Docker runs one container. Kubernetes runs — and keeps running — thousands of them, across many machines, without you watching every one.</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <h3>🔄 Self-Healing</h3>
+        <p>If a container crashes or a server dies, Kubernetes automatically creates a replacement — no alerts to answer at 3am, no manual restarts.</p>
+      </div>
+      <div class="why-card">
+        <h3>📈 Real Auto-Scaling</h3>
+        <p>Unlike plain Docker, Kubernetes can watch CPU/memory usage and automatically add or remove replicas as traffic rises and falls.</p>
+      </div>
+      <div class="why-card">
+        <h3>🚀 Zero-Downtime Deploys</h3>
+        <p>Rolling updates replace old Pods with new ones gradually, so users never see a broken or offline app during a release.</p>
+      </div>
+      <div class="why-card">
+        <h3>🌐 Multi-Machine by Design</h3>
+        <p>A cluster can span dozens or thousands of servers, and Kubernetes decides where each container runs — you just declare what you want.</p>
+      </div>
+      <div class="why-card">
+        <h3>🔐 Built-In Secrets &amp; Config</h3>
+        <p>ConfigMaps and Secrets separate configuration and credentials from your code, without baking them into images.</p>
+      </div>
+      <div class="why-card">
+        <h3>💼 Industry Standard</h3>
+        <p>Used by Google, Netflix, Spotify and most modern tech companies — it's the most in-demand orchestration skill in DevOps job postings.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" id="objects">
+    <div class="section-heading">Kubernetes Objects Reference <span class="section-count" id="objects-count"></span></div>
+    <div class="grid" id="grid-objects"></div>
+  </div>
+
+  <div class="controls" id="commands">
+    <h2 class="section-title" style="margin-bottom:4px;">kubectl Commands</h2>
+    <p class="section-sub" style="margin-bottom:20px;">Every command below is real and runnable against any Kubernetes cluster (Minikube, EKS, GKE, AKS, or bare metal).</p>
+    <div class="search-row">
+      <div class="search-box">
+        <span class="prompt">/</span>
+        <input id="search" type="text" placeholder="filter commands… e.g. 'scale', 'logs', 'rollout'">
+      </div>
+      <div class="count-pill"><span id="count">0</span> commands shown</div>
+    </div>
+    <div class="level-filter">
+      <button class="level-btn active" data-level="all">All levels</button>
+      <button class="level-btn" data-level="basic">Basic</button>
+      <button class="level-btn" data-level="intermediate">Intermediate</button>
+      <button class="level-btn" data-level="advanced">Advanced</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="grid-container"></div>
+    <div class="empty-state" id="empty">no matching commands — try a different search term</div>
+  </div>
+
+  <button id="toTop" class="to-top" aria-label="Back to top" title="Back to top">↑</button>
+
+  <footer>
+    <div class="footer-inner">
+      <span>K8sRef · built as a static reference</span>
+      <span class="footer-sep">·</span>
+      <span>works fully offline</span>
+    </div>
+    <div class="author-card">
+      <div class="author-avatar">AH</div>
+      <div>
+        <p class="author-name">Ahsan Ul Haq</p>
+        <p class="author-role">Network Engineer</p>
+      </div>
+    </div>
+  </footer>
+
+<script>
+const kubectl = [
+["cluster-info","Show the address of the control plane and cluster services.","kubectl cluster-info","basic","Cluster & Context"],
+["config view","Display the current kubeconfig settings (clusters, users, contexts).","kubectl config view","basic","Cluster & Context"],
+["config get-contexts","List all available cluster contexts.","kubectl config get-contexts","basic","Cluster & Context"],
+["config use-context","Switch the active cluster context.","kubectl config use-context minikube","intermediate","Cluster & Context"],
+["config set-context","Set a namespace as default for the current context.","kubectl config set-context --current --namespace=production","intermediate","Cluster & Context"],
+["version","Show the client and server Kubernetes versions.","kubectl version","basic","Cluster & Context"],
+["api-resources","List every resource type the cluster supports.","kubectl api-resources","intermediate","Cluster & Context"],
+["get pods","List all Pods in the current namespace.","kubectl get pods","basic","Pods"],
+["get pods -o wide","List Pods with extra detail (node, IP address).","kubectl get pods -o wide","basic","Pods"],
+["get pods -A","List Pods across every namespace.","kubectl get pods -A","intermediate","Pods"],
+["describe pod","Show detailed info and recent events for a specific Pod.","kubectl describe pod my-pod","basic","Pods"],
+["delete pod","Delete a specific Pod (a Deployment will recreate it automatically).","kubectl delete pod my-pod","basic","Pods"],
+["exec -it","Open an interactive shell inside a running Pod's container.","kubectl exec -it my-pod -- bash","basic","Pods"],
+["logs","Fetch the logs of a container inside a Pod.","kubectl logs my-pod","basic","Pods"],
+["logs -f","Stream a Pod's logs live, following new output.","kubectl logs -f my-pod","basic","Pods"],
+["logs --previous","View logs from a Pod's previous (crashed) instance.","kubectl logs my-pod --previous","advanced","Pods"],
+["port-forward","Forward a local port to a port on a Pod for local testing.","kubectl port-forward my-pod 8080:80","intermediate","Pods"],
+["cp","Copy files between a Pod and your local machine.","kubectl cp my-pod:/app/data.json ./data.json","intermediate","Pods"],
+["top pod","Show live CPU and memory usage per Pod.","kubectl top pod","intermediate","Pods"],
+["create deployment","Create a new Deployment from an image.","kubectl create deployment web --image=nginx --replicas=3","basic","Deployments"],
+["get deployments","List all Deployments in the current namespace.","kubectl get deployments","basic","Deployments"],
+["describe deployment","Show detailed status and rollout history of a Deployment.","kubectl describe deployment web","basic","Deployments"],
+["scale deployment","Change the number of replicas for a Deployment.","kubectl scale deployment web --replicas=5","basic","Deployments"],
+["set image","Update the container image used by a Deployment (triggers a rollout).","kubectl set image deployment/web web=myapp:v2","intermediate","Deployments"],
+["rollout status","Watch the live progress of a Deployment's rollout.","kubectl rollout status deployment/web","intermediate","Deployments"],
+["rollout history","View the revision history of a Deployment.","kubectl rollout history deployment/web","intermediate","Deployments"],
+["rollout undo","Roll a Deployment back to its previous version.","kubectl rollout undo deployment/web","advanced","Deployments"],
+["delete deployment","Delete a Deployment and all of its Pods.","kubectl delete deployment web","basic","Deployments"],
+["expose","Create a Service that exposes a Deployment to network traffic.","kubectl expose deployment web --type=NodePort --port=80","basic","Services & Networking"],
+["get services","List all Services in the current namespace.","kubectl get services","basic","Services & Networking"],
+["describe service","Show detailed info about a Service, including its endpoints.","kubectl describe service web","intermediate","Services & Networking"],
+["get endpoints","List the actual Pod IPs a Service is currently routing to.","kubectl get endpoints web","advanced","Services & Networking"],
+["get ingress","List Ingress rules that route external HTTP(S) traffic into the cluster.","kubectl get ingress","advanced","Services & Networking"],
+["describe ingress","Show detailed routing rules and backend status for an Ingress.","kubectl describe ingress web-ingress","advanced","Services & Networking"],
+["create namespace","Create a new namespace to isolate a group of resources.","kubectl create namespace staging","basic","Namespaces"],
+["get namespaces","List all namespaces in the cluster.","kubectl get namespaces","basic","Namespaces"],
+["delete namespace","Delete a namespace and everything inside it.","kubectl delete namespace staging","intermediate","Namespaces"],
+["get pods -n","List Pods within a specific namespace.","kubectl get pods -n staging","basic","Namespaces"],
+["create configmap","Create a ConfigMap to store non-sensitive configuration values.","kubectl create configmap app-config --from-literal=APP_ENV=production","basic","ConfigMaps &amp; Secrets"],
+["get configmaps","List all ConfigMaps in the current namespace.","kubectl get configmaps","basic","ConfigMaps &amp; Secrets"],
+["describe configmap","Show the key-value data stored inside a ConfigMap.","kubectl describe configmap app-config","intermediate","ConfigMaps &amp; Secrets"],
+["create secret generic","Create a Secret to store sensitive data like passwords or tokens.","kubectl create secret generic db-secret --from-literal=password=mysecretpass","basic","ConfigMaps &amp; Secrets"],
+["get secrets","List all Secrets in the current namespace.","kubectl get secrets","basic","ConfigMaps &amp; Secrets"],
+["describe secret","Show a Secret's metadata (values are hidden, not printed).","kubectl describe secret db-secret","intermediate","ConfigMaps &amp; Secrets"],
+["get pv","List all PersistentVolumes in the cluster.","kubectl get pv","intermediate","Volumes &amp; Storage"],
+["get pvc","List all PersistentVolumeClaims in the current namespace.","kubectl get pvc","intermediate","Volumes &amp; Storage"],
+["describe pvc","Show binding status and capacity details of a storage claim.","kubectl describe pvc my-pvc","advanced","Volumes &amp; Storage"],
+["get storageclass","List available StorageClasses used for dynamic volume provisioning.","kubectl get storageclass","advanced","Volumes &amp; Storage"],
+["delete pvc","Delete a PersistentVolumeClaim (may also release its bound volume).","kubectl delete pvc my-pvc","advanced","Volumes &amp; Storage"],
+["scale","Manually change the replica count of any scalable resource.","kubectl scale deployment web --replicas=10","basic","Scaling &amp; Autoscaling"],
+["autoscale","Automatically scale a Deployment's replicas based on CPU usage.","kubectl autoscale deployment web --min=2 --max=10 --cpu-percent=80","advanced","Scaling &amp; Autoscaling"],
+["get hpa","List active Horizontal Pod Autoscalers and their current status.","kubectl get hpa","intermediate","Scaling &amp; Autoscaling"],
+["describe hpa","Show scaling history and current metrics for an autoscaler.","kubectl describe hpa web","advanced","Scaling &amp; Autoscaling"],
+["get nodes","List all Nodes (servers) in the cluster.","kubectl get nodes","basic","Nodes &amp; Resources"],
+["describe node","Show detailed resource capacity and status of a Node.","kubectl describe node node1","intermediate","Nodes &amp; Resources"],
+["top nodes","Show live CPU and memory usage per Node.","kubectl top nodes","intermediate","Nodes &amp; Resources"],
+["cordon","Mark a Node as unschedulable so no new Pods land on it.","kubectl cordon node1","advanced","Nodes &amp; Resources"],
+["drain","Safely evict all Pods from a Node before maintenance.","kubectl drain node1 --ignore-daemonsets","advanced","Nodes &amp; Resources"],
+["uncordon","Mark a Node schedulable again after maintenance.","kubectl uncordon node1","advanced","Nodes &amp; Resources"],
+["apply -f","Create or update resources defined in a YAML manifest file.","kubectl apply -f deployment.yaml","basic","Apply &amp; Manifests"],
+["create -f","Create resources from a YAML file (fails if they already exist).","kubectl create -f deployment.yaml","basic","Apply &amp; Manifests"],
+["delete -f","Delete every resource defined in a YAML manifest file.","kubectl delete -f deployment.yaml","basic","Apply &amp; Manifests"],
+["diff -f","Preview what would change if a manifest were applied.","kubectl diff -f deployment.yaml","advanced","Apply &amp; Manifests"],
+["edit","Open a live resource in an editor and apply changes on save.","kubectl edit deployment web","intermediate","Apply &amp; Manifests"],
+["get events","List recent cluster events (scheduling, failures, scaling).","kubectl get events --sort-by=.metadata.creationTimestamp","intermediate","Debugging &amp; Troubleshooting"],
+["describe","Show full detail and recent events for any resource type.","kubectl describe pod my-pod","basic","Debugging &amp; Troubleshooting"],
+["get all","List every common resource type in the current namespace at once.","kubectl get all","basic","Debugging &amp; Troubleshooting"],
+["debug","Attach an ephemeral debugging container to a running Pod.","kubectl debug my-pod -it --image=busybox","advanced","Debugging &amp; Troubleshooting"],
+["explain","Show built-in documentation for a resource field.","kubectl explain pod.spec.containers","intermediate","Debugging &amp; Troubleshooting"],
+["create role","Define a set of permissions within a namespace.","kubectl create role pod-reader --verb=get,list --resource=pods","advanced","RBAC &amp; Security"],
+["create rolebinding","Grant a role's permissions to a user or service account.","kubectl create rolebinding read-pods --role=pod-reader --user=jane","advanced","RBAC &amp; Security"],
+["get roles","List roles defined in the current namespace.","kubectl get roles","advanced","RBAC &amp; Security"],
+["auth can-i","Check whether the current user is allowed to perform an action.","kubectl auth can-i delete pods","advanced","RBAC &amp; Security"],
+["get serviceaccounts","List service accounts used by Pods to authenticate to the API.","kubectl get serviceaccounts","advanced","RBAC &amp; Security"],
+["helm install","Install a packaged application (chart) into the cluster.","helm install my-release bitnami/nginx","intermediate","Helm (Package Manager)"],
+["helm list","List all Helm releases currently installed.","helm list","basic","Helm (Package Manager)"],
+["helm upgrade","Upgrade an existing Helm release to a new chart version.","helm upgrade my-release bitnami/nginx","intermediate","Helm (Package Manager)"],
+["helm uninstall","Remove a Helm release and its resources from the cluster.","helm uninstall my-release","basic","Helm (Package Manager)"],
+["helm repo add","Add a chart repository so Helm can install from it.","helm repo add bitnami https://charts.bitnami.com/bitnami","basic","Helm (Package Manager)"],
+["create job","Run a one-off task to completion (not a long-running service).","kubectl create job data-migration --image=migrate-tool","intermediate","Jobs &amp; CronJobs"],
+["get jobs","List all Jobs and their completion status.","kubectl get jobs","basic","Jobs &amp; CronJobs"],
+["create cronjob","Schedule a recurring Job using cron syntax.","kubectl create cronjob backup --image=backup-tool --schedule=\"0 2 * * *\"","advanced","Jobs &amp; CronJobs"],
+["get cronjobs","List all scheduled CronJobs.","kubectl get cronjobs","basic","Jobs &amp; CronJobs"],
+["delete job","Delete a completed or running Job.","kubectl delete job data-migration","basic","Jobs &amp; CronJobs"],
+["taint","Mark a Node so only Pods that explicitly tolerate it can be scheduled there.","kubectl taint nodes node1 key=value:NoSchedule","advanced","Advanced Scheduling"],
+["get nodes --show-labels","List Nodes along with their labels, used for scheduling decisions.","kubectl get nodes --show-labels","intermediate","Advanced Scheduling"],
+["label","Attach a key-value label to a resource, used for selectors and scheduling.","kubectl label node node1 disktype=ssd","intermediate","Advanced Scheduling"],
+["patch","Apply a partial, targeted update to a resource without replacing the whole object.","kubectl patch deployment web -p '{\"spec\":{\"replicas\":5}}'","advanced","Advanced Scheduling"],
+["annotate","Attach non-identifying metadata to a resource (notes, tooling info).","kubectl annotate pod my-pod description=\"test pod\"","intermediate","Advanced Scheduling"],
+["get networkpolicies","List NetworkPolicies that restrict traffic between Pods.","kubectl get networkpolicies","advanced","Security &amp; Policy"],
+["describe networkpolicy","Show which Pods a NetworkPolicy applies to and its traffic rules.","kubectl describe networkpolicy deny-all","advanced","Security &amp; Policy"],
+["get resourcequota","Show CPU/memory/object limits enforced on a namespace.","kubectl get resourcequota -n staging","advanced","Security &amp; Policy"],
+["get limitrange","Show default and max resource limits applied to Pods in a namespace.","kubectl get limitrange -n staging","advanced","Security &amp; Policy"],
+["kustomize build","Preview the final manifest produced by a Kustomize overlay.","kubectl kustomize ./overlays/production","advanced","Kustomize"],
+["apply -k","Apply resources using a Kustomize directory instead of a single YAML file.","kubectl apply -k ./overlays/production","advanced","Kustomize"],
+];
+
+const objects = [
+["Pod","The smallest deployable unit — one or more containers that share storage and network.","apiVersion: v1\nkind: Pod\nmetadata:\n  name: my-pod\nspec:\n  containers:\n  - name: nginx\n    image: nginx:latest","basic"],
+["Deployment","Declares how many replicas of a Pod should run, and manages rolling updates and self-healing.","apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web\n    spec:\n      containers:\n      - name: web\n        image: nginx:latest","basic"],
+["Service","Provides a stable network address that routes traffic to a set of Pods, even as they're replaced.","apiVersion: v1\nkind: Service\nmetadata:\n  name: web-service\nspec:\n  selector:\n    app: web\n  ports:\n    - port: 80\n      targetPort: 80\n  type: NodePort","basic"],
+["Namespace","A virtual cluster-within-a-cluster used to separate environments like production and staging.","apiVersion: v1\nkind: Namespace\nmetadata:\n  name: staging","basic"],
+["ConfigMap","Stores non-sensitive configuration data as key-value pairs, injectable into Pods.","apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\ndata:\n  APP_ENV: production","intermediate"],
+["Secret","Stores sensitive data like passwords and tokens, base64-encoded and access-controlled.","apiVersion: v1\nkind: Secret\nmetadata:\n  name: db-secret\ntype: Opaque\nstringData:\n  password: mysecretpass","intermediate"],
+["PersistentVolume (PV)","Represents an actual piece of storage in the cluster (a disk, cloud volume, etc.).","apiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: my-pv\nspec:\n  capacity:\n    storage: 10Gi\n  accessModes:\n    - ReadWriteOnce\n  hostPath:\n    path: /mnt/data","advanced"],
+["PersistentVolumeClaim (PVC)","A request for storage by a Pod — Kubernetes matches it to an available PersistentVolume.","apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: my-pvc\nspec:\n  accessModes:\n    - ReadWriteOnce\n  resources:\n    requests:\n      storage: 5Gi","advanced"],
+["Ingress","Defines HTTP/HTTPS routing rules that direct external traffic to internal Services by hostname/path.","apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: web-ingress\nspec:\n  rules:\n  - host: myapp.com\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: web-service\n            port:\n              number: 80","advanced"],
+["HorizontalPodAutoscaler (HPA)","Automatically increases or decreases replica count based on observed CPU/memory usage.","apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: web-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: web\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 80","advanced"],
+["StatefulSet","Like a Deployment, but for apps needing stable identities and storage (e.g. databases).","apiVersion: apps/v1\nkind: StatefulSet\nmetadata:\n  name: db\nspec:\n  serviceName: db\n  replicas: 3\n  selector:\n    matchLabels:\n      app: db\n  template:\n    metadata:\n      labels:\n        app: db\n    spec:\n      containers:\n      - name: db\n        image: mongo:7.0","advanced"],
+["DaemonSet","Ensures a copy of a Pod runs on every (or selected) Node — used for logging/monitoring agents.","apiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: log-agent\nspec:\n  selector:\n    matchLabels:\n      app: log-agent\n  template:\n    metadata:\n      labels:\n        app: log-agent\n    spec:\n      containers:\n      - name: log-agent\n        image: fluentd:latest","advanced"],
+["Job","Runs a Pod to completion for a one-off task, then stops — unlike a Deployment, it doesn't restart on success.","apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: data-migration\nspec:\n  template:\n    spec:\n      containers:\n      - name: migrate\n        image: migrate-tool\n      restartPolicy: Never","intermediate"],
+["CronJob","Schedules a Job to run automatically on a recurring cron schedule.","apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: backup\nspec:\n  schedule: \"0 2 * * *\"\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          containers:\n          - name: backup\n            image: backup-tool\n          restartPolicy: OnFailure","advanced"],
+["NetworkPolicy","Restricts which Pods can communicate with each other, acting as a firewall inside the cluster.","apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: deny-all\nspec:\n  podSelector: {}\n  policyTypes:\n  - Ingress\n  - Egress","advanced"],
+];
+
+function cardHtml(cmd, desc, ex, level){
+  const displayEx = ex.replace(/\\n/g, '\n');
+  return `
+    <div class="card" data-level="${level}" data-search="${(cmd+' '+desc+' '+ex+' '+level).toLowerCase()}">
+      <div class="card-top">
+        <span class="card-cmd">${cmd}</span>
+        <span class="level-badge lvl-${level}">${level}</span>
+      </div>
+      <p class="card-desc">${desc}</p>
+      <div class="card-example">
+        <span>${displayEx}</span>
+        <button class="copy-btn" onclick="copyCmd(this, ${JSON.stringify(displayEx)})">copy</button>
+      </div>
+    </div>
+  `;
+}
+
+function render(items){
+  const el = document.getElementById('grid-container');
+  const order = [];
+  const groups = {};
+  items.forEach(([cmd, desc, ex, level, category]) => {
+    if(!groups[category]){ groups[category] = []; order.push(category); }
+    groups[category].push([cmd, desc, ex, level]);
+  });
+
+  const chips = order.map(category => {
+    const anchor = 'cat-' + category.replace(/[^a-zA-Z0-9]+/g,'-').toLowerCase();
+    return `<a href="#${anchor}" class="cat-chip">${category} <span>${groups[category].length}</span></a>`;
+  }).join('');
+
+  const sections = order.map(category => {
+    const anchor = 'cat-' + category.replace(/[^a-zA-Z0-9]+/g,'-').toLowerCase();
+    return `
+    <div class="section-heading" id="${anchor}">${category} <span class="section-count">${groups[category].length}</span></div>
+    <div class="grid">
+      ${groups[category].map(([cmd, desc, ex, level]) => cardHtml(cmd, desc, ex, level)).join('')}
+    </div>
+  `;
+  }).join('');
+
+  el.innerHTML = `<div class="cat-chips">${chips}</div>${sections}`;
+  initScrollSpy(el);
+}
+
+function initScrollSpy(container){
+  if(typeof IntersectionObserver === 'undefined') return;
+  const headings = container.querySelectorAll('.section-heading[id]');
+  const chips = container.querySelectorAll('.cat-chip');
+  if(!headings.length || !chips.length) return;
+  const chipMap = {};
+  chips.forEach(chip => { chipMap[chip.getAttribute('href').slice(1)] = chip; });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        chips.forEach(c => c.classList.remove('active-chip'));
+        const chip = chipMap[entry.target.id];
+        if(chip) chip.classList.add('active-chip');
+      }
+    });
+  }, { rootMargin: '-100px 0px -70% 0px', threshold: 0 });
+  headings.forEach(h => observer.observe(h));
+}
+
+/* Render objects reference (no level filter needed, but keep badges for consistency) */
+function renderObjects(items){
+  const el = document.getElementById('grid-objects');
+  el.innerHTML = items.map(([name, desc, ex, level]) => cardHtml(name, desc, ex, level)).join('');
+  document.getElementById('objects-count').textContent = items.length;
+}
+
+render(kubectl);
+renderObjects(objects);
+document.getElementById('totalStat').textContent = kubectl.length + objects.length;
+
+function copyCmd(btn, text){
+  navigator.clipboard.writeText(text).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = 'copied'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = old; btn.classList.remove('copied'); }, 1200);
+  });
+}
+
+/* Search + level filter (applies only to the commands grid, not the objects grid) */
+const searchInput = document.getElementById('search');
+const countEl = document.getElementById('count');
+const emptyEl = document.getElementById('empty');
+const levelButtons = document.querySelectorAll('.level-btn');
+let currentLevel = 'all';
+
+function applyFilters(){
+  const q = searchInput.value.trim().toLowerCase();
+  let visible = 0;
+  document.querySelectorAll('#grid-container .card').forEach(card=>{
+    const textMatch = card.dataset.search.includes(q);
+    const levelMatch = currentLevel === 'all' || card.dataset.level === currentLevel;
+    const show = textMatch && levelMatch;
+    card.style.display = show ? '' : 'none';
+    if(show) visible++;
+  });
+  countEl.textContent = visible;
+  emptyEl.classList.toggle('show', visible === 0);
+}
+
+searchInput.addEventListener('input', applyFilters);
+levelButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    levelButtons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLevel = btn.dataset.level;
+    applyFilters();
+  });
+});
+
+document.addEventListener('keydown', (e)=>{
+  const tag = document.activeElement.tagName;
+  const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
+  if(e.key === '/' && !isTyping){ e.preventDefault(); searchInput.focus(); }
+  else if(e.key === 'Escape' && document.activeElement === searchInput){
+    searchInput.value = ''; applyFilters(); searchInput.blur();
+  }
+});
+
+const toTopBtn = document.getElementById('toTop');
+window.addEventListener('scroll', ()=>{ toTopBtn.classList.toggle('show', window.scrollY > 500); });
+toTopBtn.addEventListener('click', ()=>{ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+applyFilters();
+</script>
+</body>
+</html>

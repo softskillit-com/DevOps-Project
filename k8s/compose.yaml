@@ -1,0 +1,12 @@
+services:
+  web:
+    image: k8s:latest
+    container_name: k8s-app
+    ports:
+      - "9000:80"        # host:container -> visit http://localhost:9000
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"      # max half a CPU core
+          memory: "128M"   # max 128 MB RAM
