@@ -32,8 +32,8 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          context: ./linuxsheet
+          context: ./k8s
           push: ${{ github.event_name == 'push' }}
-          tags: ahsanchoudhery/linuxcore
+          tags: ahsanchoudhery/k8s-app
           cache-from: type=gha
           cache-to: type=gha,mode=max
